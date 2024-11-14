@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: productdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  api:
+    build:
+      context: ../backend-src
+      dockerfile: ../.devcontainer/backend-container/Dockerfile
+    #command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db/productdb
+    volumes:
+      - ../backend-src:/workspace
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  alembic:
+    build:
+      context: ../backend-src
+      dockerfile: ../.devcontainer/backend-container/Dockerfile
+    command: alembic upgrade head
+    volumes:
+      - ../backend-src:/workspace
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db/productdb
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ../frontend-src
+      dockerfile: ../.devcontainer/frontend-container/Dockerfile
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    volumes:
+      - ../frontend-src:/app
+      - node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # Required for hot reload on some systems
+
+volumes:
+  postgres_data:
+  node_modules:
+
+networks:
+  app-network:
+    driver: bridge

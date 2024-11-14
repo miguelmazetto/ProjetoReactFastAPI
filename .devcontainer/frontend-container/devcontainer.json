@@ -1,0 +1,24 @@
+{
+  "name": "React Dev Container",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "frontend",
+  "workspaceFolder": "/app",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/sh"
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "formulahendry.auto-close-tag",
+        "formulahendry.auto-rename-tag",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.js-debug"
+      ]
+    }
+  },
+  "postCreateCommand": "bun install",
+  "forwardPorts": [3000],
+  "shutdownAction": "stopCompose"
+}
